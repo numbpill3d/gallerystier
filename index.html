@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CURSED_GALLERY.exe</title>
+    <style>
+        @keyframes matrix-rain {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0) skew(0deg); filter: hue-rotate(0deg); }
+            25% { transform: translate(-5px, 5px) skew(-5deg); filter: hue-rotate(90deg); }
+            50% { transform: translate(5px, -5px) skew(5deg); filter: hue-rotate(180deg); }
+            75% { transform: translate(-5px, -5px) skew(-5deg); filter: hue-rotate(270deg); }
+            100% { transform: translate(0) skew(0deg); filter: hue-rotate(360deg); }
+        }
+
+        @keyframes corrupt {
+            0% { clip-path: inset(0 0 0 0); }
+            5% { clip-path: inset(10% 0 20% 0); }
+            10% { clip-path: inset(40% 0 50% 0); }
+            15% { clip-path: inset(20% 0 30% 0); }
+            20% { clip-path: inset(0 0 0 0); }
+            100% { clip-path: inset(0 0 0 0); }
+        }
+
+        @keyframes static {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: crosshair;
+        }
+
+        body {
+            background: #000;
+            color: #ff0000;
+            font-family: "Courier New", monospace;
+            overflow: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0,0,0,0.98), rgba(0,0,0,0.98)),
+                repeating-linear-gradient(0deg, transparent 0px, transparent 1px, rgba(255,0,0,0.1) 1px, rgba(255,0,0,0.1) 2px);
+            background-size: 100% 100%, 100% 4px;
+            pointer-events: none;
+            animation: static 2s linear infinite;
+            z-index: 1;
+            mix-blend-mode: multiply;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(black 50%, transparent 50%);
+            background-size: 100% 4px;
+            z-index: 0;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar {
+            background: rgba(20, 0, 0, 0.95);
+            border-right: 2px solid #ff0000;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 65%, rgba(255,0,0,0.1) 75%, transparent 85%);
+            background-size: 200% 200%;
+            animation: pulse 4s infinite linear;
+            pointer-events: none;
+        }
+
+        .tag-container {
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            background: #330000;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 5px #ff0000;
+        }
+
+        .tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .tag:hover::before {
+            left: 100%;
+        }
+
+        .tag:hover {
+            background: #660000;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px #ff0000;
+            border-color: #ff3333;
+        }
+
+        .nav-arrows {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .arrow-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(20, 0, 0, 0.8);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            font-size: 24px;
+            cursor: crosshair;
+            pointer-events: auto;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #ff0000;
+            animation: pulse 2s infinite;
+        }
+
+        .arrow-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,0,0,0.1) 0%, transparent 70%);
+            animation: rotate 3s linear infinite;
+        }
+
+        .arrow-btn:hover {
+            background: rgba(51, 0, 0, 0.9);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .arrow-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 5px #ff0000; }
+            50% { box-shadow: 0 0 15px #ff0000; }
+            100% { box-shadow: 0 0 5px #ff0000; }
+        }
+
+        .main-content {
+            position: relative;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .featured-image {
+            max-width: 800px;
+            max-height: 600px;
+            border: 2px solid #ff0000;
+            position: relative;
+            z-index: 2;
+            animation: corrupt 10s infinite;
+        }
+
+        .featured-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #ff0000;
+            animation: matrix-rain 2s linear infinite;
+            box-shadow: 0 0 10px rgba(255,0,0,0.5);
+        }
+
+        .floating-image {
+            position: absolute;
+            max-width: 150px;
+            opacity: 0.3;
+            pointer-events: none;
+            animation: float 10s infinite, glitch 0.3s infinite;
+            filter: grayscale(0.8) brightness(0.5);
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(20, 0, 0, 0.95);
+            padding: 5px;
+            border-top: 1px solid #ff0000;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 3;
+        }
+
+        .title-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #1a0000;
+            color: #ff0000;
+            padding: 5px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1000;
+            animation: glitch 5s infinite;
+            border-bottom: 1px solid #ff0000;
+            text-shadow: 0 0 5px #ff0000;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff0000;
+            border: 1px solid #000;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff3333;
+        }
+
+        .glitch-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            animation: corrupt 1s infinite;
+            opacity: 0.1;
+            background: 
+                repeating-linear-gradient(0deg, rgba(255,0,0,0.1) 0px, transparent 1px, transparent 2px),
+                repeating-linear-gradient(90deg, rgba(255,0,0,0.1) 0px, transparent 1px, transparent 2px);
+            background-size: 3px 3px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    <div class="glitch-overlay"></div>
+    <div class="matrix-bg"></div>
+    
+    <div class="title-bar">CURSED_GALLERY.exe - [SYSTEM STATUS: INFECTED]</div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h2>[ TAGS ]</h2>
+            <div class="tag-container" id="tagContainer">
+                <!-- Tags will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="nav-arrows">
+                <button class="arrow-btn" id="prevBtn">←</button>
+                <button class="arrow-btn" id="nextBtn">→</button>
+            </div>
+            <img src="https://files.catbox.moe/ncynfb.gif" alt="Featured" class="featured-image" id="featuredImage">
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span id="imageCounter">IMAGES LOADED: 0/0</span>
+        <span id="activeFilters">ACTIVE FILTERS: NONE</span>
+        <span id="systemStatus">SYSTEM STATUS: UNSTABLE</span>
+    </div>
+
+    <script>
+        // Matrix rain effect
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const alphabet = katakana + latin + nums;
+
+        const fontSize = 16;
+        const columns = canvas.width/fontSize;
+
+        const rainDrops = Array(Math.floor(columns)).fill(1);
+
+        function draw() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ff0000';
+            ctx.font = fontSize + 'px monospace';
+
+            for(let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i*fontSize, rainDrops[i]*fontSize);
+
+                if(rainDrops[i]*fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        }
+
+        setInterval(draw, 30);
+
+        // Image Database
+        const images = [
+            {
+                url: 'https://files.catbox.moe/qnt5yf.gif',
+                tags: ['corrupted', 'system', 'void']
+            },
+            {
+                url: 'https://files.catbox.moe/oaziyp.gif',
+                tags: ['glitch', 'artifact', 'hex']
+            },
+            {
+                url: 'https://files.catbox.moe/naqp5g.gif',
+                tags: ['haunted', 'binary', 'curse']
+            }
+        ];
+
+        let activeTags = new Set();
+        let currentImageIndex = 0;
+        const floatingImages = [];
+        
+        const allTags = [...new Set(images.flatMap(img => img.tags))];
+        
+        const tagContainer = document.getElementById('tagContainer');
+        allTags.forEach(tag => {
+            const tagElement = document.createElement('button');
+            tagElement.className = 'tag';
+            tagElement.textContent = tag;
+            tagElement.onclick = () => toggleTag(tag, tagElement);
+            tagContainer.appendChild(tagElement);
+        });
+
+        function toggleTag(tag, element) {
+            if (activeTags.has(tag)) {
+                activeTags.delete(tag);
+                element.classList.remove('active');
+            } else {
+                activeTags.add(tag);
+                element.classList.add('active');
+            }
+            updateGallery();
+            updateStatusBar();
+        }
+
+        function updateGallery() {
+            const filteredImages = activeTags.size === 0 
+                ? images 
+                : images.filter(img => 
+                    [...activeTags].every(tag => img.tags.includes(tag))
+                );
+            
+            if (filteredImages.length > 0) {
+                currentImageIndex = currentImageIndex % filteredImages.length;
+                document.getElementById('featuredImage').src = filteredImages[currentImageIndex].url;
+            }
+        }
+
+        function createFloatingImage(url) {
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'floating-image';
+            img.style.left = Math.random() * window.innerWidth + 'px';
+            img.style.top = Math.random() * window.innerHeight + 'px';
+            img.style.animationDelay = Math.random() * 5 + 's';
+            document.querySelector('.main-content').appendChild(img);
+            return img;
+        }
+
+        images.forEach(image => {
+            floatingImages.push(createFloatingImage(image.url));
+        });
+
+        function updateStatusBar() {
+            document.getElementById('imageCounter').textContent = 
+                `IMAGES LOADED: ${images.length}/${images.length}`;
+            document.getElementById('activeFilters').textContent = 
+                `ACTIVE FILTERS: ${activeTags.size === 0 ? 'NONE' : [...activeTags].join(', ')}`;
+            
+            const statuses = ['UNSTABLE', 'INFECTED', 'COMPROMISED', 'DEGRADING', 'HAUNTED'];
+            document.getElementById('systemStatus').textContent = 
+                `SYSTEM STATUS: ${statuses[Math.floor(Math.random() * statuses.length)]}`;
+        }
+
+        updateGallery();
+        updateStatusBar();
+
+        setInterval(() => {
+            currentImageIndex++;
+            updateGallery();
+        }, 5000);
+
+        setInterval(updateStatusBar, 3000);
+
+        function animateFloatingImages() {
+            floatingImages.forEach(img => {
+                const newX = Math.random() * window.innerWidth;
+                const newY = Math.random() * window.innerHeight;
+                img.style.left = newX + 'px';
+                img.style.top = newY + 'px';
+            });
+        }
+
+        setInterval(animateFloatingImages, 10000);
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
